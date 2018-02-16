@@ -27,44 +27,59 @@ The expected cost of a strategy $(t_1, t_2, t_3, \ldots )$ is then:
 \[
  \underbrace{(1 - t_1)}_{\text{cost}} \cdot \underbrace{(1 - t_1)}_{\text{probability}} +
  \left(
+  \underbrace{(1-t_1)}_{\text{cost of failing}} +
   \underbrace{(1 - t_2)}_{\text{cost}} \cdot \underbrace{\frac{t_1 - t_2}{t_1}}_{\text{probability}} +
-  \left( (1-t_3) \cdot \frac{t_2-t_3}{t_2} + (\ldots)\cdot \frac{t_3}{t_2}
+  \left( (1-t_2) + (1-t_3) \cdot \frac{t_2-t_3}{t_2} + (\ldots)\cdot \frac{t_3}{t_2}
   \right) \cdot \frac{t_2}{t_1}
  \right) \cdot \underbrace{t_1}_{\text{probability}}
+\]
+\[
+= \underbrace{(1-t_1)}_{\text{cost of trying 1st}} + t_1 \left( (1-t_2) + \frac{t_2}{t_1} \left( (1-t_3) + \frac{t_3}{t_2}(\cdots) \right) \right)
+\]
+Let $t_0=1$ (that makes notation consistent).
+\[
+= \sum_{i=1}^\infty t_{i-1}(1-t_i)
 \]
 
 \section{The finite problem}
 Suppose that we are limited to $k$ saves, where we replay the entire level if we fail after all $k$ saves.
-Let $t_0=1$ (that makes notation consistent).
 For that case we get:
 \begin{equation}\label{eq:finite}
-\sum_{i=1}^k (1-t_i) (t_{i-1} - {t_i}) + t_k
+C = \sum_{i=1}^k t_{i-1} (1 - {t_i}) + t_k
 \end{equation}
-
-Example: the cost of the sequence $1/2, 1/4, 1/8, 1/16$ is:
-\[ \frac{1}{4}+\frac{3}{16}+\frac{7}{64} + \frac{15}{256} + \frac{1}{16} \approx 0.668 \]
-
-Solution for power sequences: the cost for sequences of the form $t_i = 1/a^i$:
-\begin{align*}
- & \sum_{i=1}^k \left(1-\frac{1}{a^i} \right) \left( \frac{1}{a^{i-1}} - \frac{1}{a^i} \right) + \frac{1}{a^k} \\
- =& \sum_{i=1}^k \frac{ (a^i-1) (a-1) }{ a^{2i} } + \frac{1}{a^k} \\
- =& \sum_{i=1}^k \frac{ a^{i+1}-a^i-a+1}{ a^{2i} } + \frac{1}{a^k} \\
- =& \frac{1}{a^k} + \sum_{i=1}^k \frac{1}{a^{i-1}} - \sum_{i=1}^k \frac{1}{a^i} - \sum_{i=1}^k \frac{1}{a^{2i-1}} + \sum_{i=1}^k \frac{1}{a^{2i}} \\
- =& 1 - \sum_{i=1}^k \frac{a-1}{a^{2i}} = 1- \frac{(a-1) a^{-2k}(a^{2k}-1)}{a^2-1}
-\end{align*}
-
-\section{Extending to the infinite case}
-The limit as $k \rightarrow \infty$ of the cost is therefore
-\[\frac{a}{a+1}\]
-which has the infimum of $a=1$ on $a \in (1, \infty ]$.
-This suggest a latest-save-first strategy.
 
 \section{The optimal subset case.}
 
 Clearly, in a realistic setting we only have $n$ saves to choose from, and the problem becomes a question of deciding how many saves to pick and which ones to pick.
 Approach this problem by comparing the costs of a finite strategy with the cost of that strategy with save $j$ removed.
+Let the expected cost of the ``full'' strategy be $C$, given by~\eqref{eq:finite}, and the cost of the strategy without $j$ be $C_{-j}$.
+
 \paragraph{The case of $1<j<k$}
+\begin{align*}
+ C - C_{-j} &= t_{j-1} (1-t_j) + t_j(1-t_{j+1}) - t_{j-1} ( 1-t_{j+1} ) \\
+ &= t_{j-1} - t_j t_{j-1} + t_j -t_j t_{j+1} - t_{j-1} + t_{j-1} t_{j+1} \\
+ &= t_j (1-t_{j-1}-t_{j+1} ) + t_{j-1} t_{j+1}
+\end{align*}
+Adding $t_j$ is only beneficial when it deceases the cost, i.e.\ $C- C_{-j} < 0$, i.e.:
+\[
+ t_j > \frac{t_{j-1} t_{j+1}}{ t_{j-1} + t_{j+1} - 1 } \qquad \text{s.t. } t_{j-1} + t_{j+1} - 1 > 0 
+\]
 \paragraph{The case of $j=1$}
+\begin{align*}
+ C - C_{-1} &=  (1-t_1)+t_1(1-t_2) - (1-t_2) \\
+ &= (1-t_1) + (t_1 - 1) ( 1 - t_2) \\
+ &= (1-t_1) t_2
+\end{align*}
+This is always greater than 0.
 \paragraph{The case of $j=k$}
+\[
+ C_{-k} = \sum_{i=1}^{k-1} t_{i-1} (1 - {t_i}) + t_{k-1}
+\]
+\[
+C - C_{-k} = t_k + t_{k-1}(1-t_{k}) -t_{k-1} = t_k (1-t_{k-1})
+\]
+This is also always greater than 0.
+
+Having computed these costs of adjusting a strategy by one term, once can construct a dynamic programming algorithm to find the best strategy given a finite set of saves.
 
 \end{document}
