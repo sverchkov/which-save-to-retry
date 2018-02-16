@@ -1,0 +1,70 @@
+\documentclass{article}
+
+\usepackage{amsmath,amsfonts}
+
+\title{Best strategy for correcting a single detection in a stealth level playthrough}
+
+\begin{document}
+
+\maketitle
+
+\section{Problem}
+Knowing that the player was detected once in a playthrough of a stealth level, without knowing where the detection happened, to which save is it best to go back to attempt to correct the detection?
+
+\section{Formulation}
+W.l.o.g. assume the level starts at time 0 and ends at time 1.
+For simplicity assume that we have infinite saves at every (real) timepoint between 0 and 1.
+For simplicity assume that the correcting playthrough will be perfect.
+Furthermore, if cost is player time, the cost of playing from time $t \quad (0\leq t \leq1)$ is $(1-t)$.
+Another strong assumption here is that it always takes the same amount of time to play through any given section.
+Assume that the detection happened at some random time $T$ where $T \sim U(0,1)$ (uniformly random over the interval).
+
+\section{Strategy specification}
+Since after each attempt we either finally succeed or must select a single next timepoint to test from, every strategy can be uniquely characterized by an infinite sequence of timepoints $(t_1, t_2, t_3, \ldots )$, $0 < \ldots < t_3 < t_2 < t_1 < 1$.
+
+\section{Unrolling the expected value}
+The expected cost of a strategy $(t_1, t_2, t_3, \ldots )$ is then:
+\[
+ \underbrace{(1 - t_1)}_{\text{cost}} \cdot \underbrace{(1 - t_1)}_{\text{probability}} +
+ \left(
+  \underbrace{(1 - t_2)}_{\text{cost}} \cdot \underbrace{\frac{t_1 - t_2}{t_1}}_{\text{probability}} +
+  \left( (1-t_3) \cdot \frac{t_2-t_3}{t_2} + (\ldots)\cdot \frac{t_3}{t_2}
+  \right) \cdot \frac{t_2}{t_1}
+ \right) \cdot \underbrace{t_1}_{\text{probability}}
+\]
+
+\section{The finite problem}
+Suppose that we are limited to $k$ saves, where we replay the entire level if we fail after all $k$ saves.
+Let $t_0=1$ (that makes notation consistent).
+For that case we get:
+\begin{equation}\label{eq:finite}
+\sum_{i=1}^k (1-t_i) (t_{i-1} - {t_i}) + t_k
+\end{equation}
+
+Example: the cost of the sequence $1/2, 1/4, 1/8, 1/16$ is:
+\[ \frac{1}{4}+\frac{3}{16}+\frac{7}{64} + \frac{15}{256} + \frac{1}{16} \approx 0.668 \]
+
+Solution for power sequences: the cost for sequences of the form $t_i = 1/a^i$:
+\begin{align*}
+ & \sum_{i=1}^k \left(1-\frac{1}{a^i} \right) \left( \frac{1}{a^{i-1}} - \frac{1}{a^i} \right) + \frac{1}{a^k} \\
+ =& \sum_{i=1}^k \frac{ (a^i-1) (a-1) }{ a^{2i} } + \frac{1}{a^k} \\
+ =& \sum_{i=1}^k \frac{ a^{i+1}-a^i-a+1}{ a^{2i} } + \frac{1}{a^k} \\
+ =& \frac{1}{a^k} + \sum_{i=1}^k \frac{1}{a^{i-1}} - \sum_{i=1}^k \frac{1}{a^i} - \sum_{i=1}^k \frac{1}{a^{2i-1}} + \sum_{i=1}^k \frac{1}{a^{2i}} \\
+ =& 1 - \sum_{i=1}^k \frac{a-1}{a^{2i}} = 1- \frac{(a-1) a^{-2k}(a^{2k}-1)}{a^2-1}
+\end{align*}
+
+\section{Extending to the infinite case}
+The limit as $k \rightarrow \infty$ of the cost is therefore
+\[\frac{a}{a+1}\]
+which has the infimum of $a=1$ on $a \in (1, \infty ]$.
+This suggest a latest-save-first strategy.
+
+\section{The optimal subset case.}
+
+Clearly, in a realistic setting we only have $n$ saves to choose from, and the problem becomes a question of deciding how many saves to pick and which ones to pick.
+Approach this problem by comparing the costs of a finite strategy with the cost of that strategy with save $j$ removed.
+\paragraph{The case of $1<j<k$}
+\paragraph{The case of $j=1$}
+\paragraph{The case of $j=k$}
+
+\end{document}
